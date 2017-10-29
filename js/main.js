@@ -1,45 +1,59 @@
-
-
 window.onload = function() {
   // Start canvas
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
   // Start images objects
   var imgBackground = new Image();
-  var imgPlayer = new Image();
+  var imgHero = new Image();
   // Start background
   imgBackground.src = 'images/background1line.png';
-  imgBackground.width = 2400 ,imgBackground.height = 600;
-  var stage = new Stage(imgBackground,0,0,800,600);
+  imgBackground.width = 2400, imgBackground.height = 600;
+  var stage = new Stage(imgBackground, 0, 0, 800, 600);
   // Start player
-  imgPlayer.src = knightIdle[0];
-  imgPlayer.width = 47, imgPlayer.height = 53;
-  var newPlayer = new Player(imgPlayer,20,430,47,53);
+  imgHero.src = 'images/knight/01-Idle_/2D_KNIGHT__Idle_000.png';
+  imgHero.width = 47, imgHero.height = 53;
+  var myHero = new Hero(imgHero, 20, 420, 61, 69);
 
   // Paint all
   imgBackground.onload = function() {
-    stage.drawStage(ctx,stage.img,0);
-    newPlayer.drawPlayer(ctx,newPlayer.img);
-  }
+    stage.drawStage(ctx, stage.img, 0);
+    myHero.drawHero(ctx, myHero.img);
+  };
+  // Repaint continuously
+  setInterval(function() {
+    ctx.clearRect(stage.x, stage.y, stage.height, stage.width);
+    stage.drawStage(ctx, stage.img, 0);
+    myHero.drawHero(ctx, myHero.img);
+    myHero.animation();
+    if (myHero.status == 'knightJumpLeft' || myHero.status == 'knightJumpLeft' && myHero.y == 420){
+      myHero.land();
+    }
+    else if (myHero.status == 'knightJumpLeftFinish'){
+      myHero.idle();
+    }
+  }, 1000/48);
 
-  document.onkeydown = function(e){
+  document.onkeydown = function(e) {
     switch (e.keyCode) {
       case 37:
-        newPlayer.moveToLeft();
+        myHero.moveToLeft(stage);
         break;
       case 39:
-        newPlayer.moveToRight();
+        myHero.moveToRight(stage);
         break;
       case 38:
-        newPlayer.jump();
+      case 32:
+        myHero.jump();
+        break;
+      case 65:
+      case 97: // a & A
+        myHero.attack();
         break;
     }
-
-  document.onkeyup = function(e){
-    if (knightIdle)
-      newPlayer
-  }
-  }
+  };
+  document.onkeyup = function() {
+    if (myHero.y == 420) myHero.idle();
+  };
 
   // Paint Player
-}
+};
