@@ -19,25 +19,11 @@ window.onload = function() {
   //place HUD
   var hud = new Stage(imgHUD, 30, 30, 109, 239);
   // place BARS
-  var lifeBar = new Stage(imgTiredLife,130,40,imgBarLife.width,imgBarLife.height);
-  var tiredBar = new Stage(imgBarLife,130,110,imgTiredLife.width,imgTiredLife.height);
+  var lifeBar = new Stage(imgTiredLife, 130, 40, imgBarLife.width, imgBarLife.height);
+  var tiredBar = new Stage(imgBarLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
   // paint
   imgBackground.onload = function() {
-    setInterval(function() {
-      ctx.clearRect(stage.x, stage.y, stage.height, stage.width);
-      stage.drawStage(ctx, stage.img, stage.x, stage.y);
-      myHero.drawHero(ctx, myHero.img);
-      lifeBar.drawImageResized(ctx,imgBarLife, lifeBar.x, lifeBar.y, myHero.life / myHero.life * imgBarLife.width, imgBarLife.height);
-      tiredBar.drawImageResized(ctx,imgTiredLife, tiredBar.x, tiredBar.y, myHero.tired / myHero.tiredMax * imgTiredLife.width, imgTiredLife.height);
-      hud.drawStage(ctx, hud.img, hud.x, hud.y);
-      instructions.drawStage(ctx, instructions.img, 50, 522);
-      myHero.animation();
-      if (myHero.status == 'knightJumpLeft' || myHero.status == 'knightJumpLeft' && myHero.y == 420) {
-        myHero.land();
-      } else if (myHero.status == 'knightJumpLeftFinish') {
-        myHero.idle();
-      }
-    }, 1000 / 48);
+    requestAnimationFrame(drawAll);
   };
   var codeset = {
     16: false,
@@ -73,6 +59,7 @@ window.onload = function() {
       if (codeset[65]) {
         myHero.attack();
       }
+      //requestAnimationFrame(drawAll);
     }
   }).on('keyup', function(e) {
     if (e.keyCode in codeset) {
@@ -82,4 +69,42 @@ window.onload = function() {
     }
     if (myHero.y == 420) myHero.idle();
   });
+  // Loop draw and lastTime = now
+  var lastTime = 0;
+
+  function drawAll(timestamp) {
+    var duration = 1000 / 24;
+    // return if the desired time hasn't elapsed
+    if ((timestamp - lastTime) < duration) {
+      requestAnimationFrame(drawAll);
+      return;
+    }
+    ctx.clearRect(stage.x, stage.y, stage.height, stage.width);
+    stage.drawStage(ctx, stage.img, stage.x, stage.y);
+    myHero.drawHero(ctx, myHero.img);
+    lifeBar.drawImageResized(ctx, imgBarLife, lifeBar.x, lifeBar.y, myHero.life / myHero.life * imgBarLife.width, imgBarLife.height);
+    tiredBar.drawImageResized(ctx, imgTiredLife, tiredBar.x, tiredBar.y, myHero.tired / myHero.tiredMax * imgTiredLife.width, imgTiredLife.height);
+    hud.drawStage(ctx, hud.img, hud.x, hud.y);
+    instructions.drawStage(ctx, instructions.img, 50, 522);
+    myHero.animation();
+    myHero.recoverTired();
+    myHero.isAlive(stage);
+    if (stage.gravity(myHero)) {
+      console.log('gravedad activada');
+      if (myHero.y < 800) {
+        myHero.y += 10;
+      } else{
+        myHero.life = 0;
+      }
+    }
+    stage.interaction();
+    if (myHero.status == 'knightJumpLeft' || myHero.status == 'knightJumpLeft' && myHero.y == 420) {
+      myHero.land();
+    } else if (myHero.status == 'knightJumpLeftFinish') {
+      myHero.idle();
+    }
+    lastTime = timestamp;
+    window.requestAnimationFrame(drawAll);
+  }
+
 };

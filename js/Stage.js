@@ -19,3 +19,18 @@ Stage.prototype.createImage = function(path,width,height){
   newObject.height = height;
   return newObject;
 };
+
+Stage.prototype.gravity = function(hero){
+    // DETECT COLLISION ALGORITHM
+    if(this.x > -315 && this.x < -161 && hero.y >= 420){
+      return true;
+    };
+  };
+
+Stage.prototype.interaction = function(hero){
+  if (this.x>=-963 && this.x <=-858){
+    console.log('Look! a letter!');
+  }else{
+
+  }
+};
