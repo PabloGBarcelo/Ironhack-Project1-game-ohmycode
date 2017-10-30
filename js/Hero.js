@@ -99,10 +99,11 @@ function Hero(img,x,y,width,height){
   this.speedNormal = 7; // SPEED NORMAL
   this.life = 100; // ACTUAL LIFE
   this.lifeMax = 100; // 100% LIFE
-  this.lives = 0; // NUMBER OF LIVES
+  this.lives = 1; // NUMBER OF LIVES (1/0)
   this.tired = 10; // ACTUAL TIRED
   this.tiredMax = 10; // MAX TIRED
   this.recoveringTime = 0.025;
+  this.fairy = false; // Fairy company
 }
 
 Hero.prototype.drawHero = function(ctx,img){
@@ -144,7 +145,7 @@ Hero.prototype.moveToRight = function(stage){
     if (this.direction != 'Right' ) this.direction = 'Right';
     this.checkAndMoveScreen(stage,this,this.speedMax);
   };
-  console.log("stage x: "+stage.x+" hero.x: "+this.x);
+  console.log("stage x: "+stage.x+" hero.x: "+this.x+"stage y "+stage.y+" hero.y "+this.y);
   //console.log('this.x '+this.x+' stage.x '+stage.x+'stage.width: '+stage.width);
 };
 
@@ -188,7 +189,6 @@ Hero.prototype.jump = function(speedJump,stage){
         x--;
         if (x == -1){
           that.land(y,stage);
-          sw = 0;
           clearInterval(requestId);
         }
       },50);
@@ -217,9 +217,12 @@ Hero.prototype.land = function(y,stage){
     var requestId = setInterval(function (){
       console.log(stage);
       that.checkAndMoveScreen(stage,that,y);
-      that.y += x;
+      if ((that.y += x) >=420){
+        that.y = 420;
+      };
       x++;
       if (x == that.longJump+1){
+        this.y = 420; // FIX
         clearInterval(requestId);
       }
 
@@ -237,22 +240,20 @@ Hero.prototype.animation = function(time){
 
 Hero.prototype.recoverTired = function(){
   if((this.speedMax == this.speedNormal
-    && (this.status == knightIdleLeft || this.status == knightIdleRight
-  || this.status == knightRunLeft || this.status == knightRunRight))
+    && (this.status == knightRunLeft || this.status == knightRunRight))
   && this.tired < this.tiredMax){
-    this.tired += this.recoveringTime
+    this.tired += this.recoveringTime;
+  } else if((this.speedMax == this.speedNormal
+    && (this.status == knightIdleLeft || this.status == knightIdleRight))
+  && this.tired < this.tiredMax){
+    this.tired += this.recoveringTime*2;
 
-
-
-    ;
   }
 };
 
 Hero.prototype.isAlive = function(stage){
   if (this.life <= 0){
     console.log('HA MUERTO');
-  } else{
     this.lives -= 1;
-
   }
 };

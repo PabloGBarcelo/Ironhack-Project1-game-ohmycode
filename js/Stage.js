@@ -26,11 +26,26 @@ Stage.prototype.gravity = function(hero){
       return true;
     };
   };
-
-Stage.prototype.interaction = function(hero){
-  if (this.x>=-963 && this.x <=-858){
-    console.log('Look! a letter!');
-  }else{
-
+var soundMade = 0;
+Stage.prototype.interaction = function(ctx,img,upPressed,hero){
+  // Letter near cave
+  if (this.x>=-910 && this.x <=-858){
+    if (!upPressed){
+    ctx.drawImage(img, 445, 370);
+  } else {
+    // Claudia letter info chatbox
+    ctx.drawImage(img, 250, 200);
+      // if (hero.fairy == false){
+        // Insert fairy
+        // hero.fairy = true;
+      // }
+    }
   }
 };
+  Stage.prototype.diedWithLives = function(hero){
+    this.x = 0;
+    this.y = 0;
+    hero.x = 20;
+    hero.y = 420;
+    hero.life = 100;
+  };

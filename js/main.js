@@ -1,5 +1,6 @@
 window.onload = function() {
   // Start canvas
+  var upPressed = false; // Detect if key up is pressed;
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
   // Start Stage (Background)
@@ -12,6 +13,9 @@ window.onload = function() {
   var imgHUD = stage.createImage('images/hud.png', 109, 239);
   var imgBarLife = stage.createImage('images/barHP.png', 124, 13);
   var imgTiredLife = stage.createImage('images/barTired.png', 124, 13);
+  var imgExclamationLetter = stage.createImage('images/exclamation.png',39,38);
+  var imgFairyChat = stage.createImage('images/chatboxFairy.png',423,162);
+  var imgHeartLife = stage.createImage('images/heart.png',14,14);
   // Start player
   var myHero = new Hero(imgHero, 20, 420, 61, 69);
   // Place instructions
@@ -19,8 +23,9 @@ window.onload = function() {
   //place HUD
   var hud = new Stage(imgHUD, 30, 30, 109, 239);
   // place BARS
-  var lifeBar = new Stage(imgTiredLife, 130, 40, imgBarLife.width, imgBarLife.height);
-  var tiredBar = new Stage(imgBarLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
+  var lifeBar = new Stage(imgBarLife, 130, 40, imgBarLife.width, imgBarLife.height);
+  var tiredBar = new Stage(imgTiredLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
+  var heartHUD = new Stage(imgHeartLife, 43,40, imgHeartLife.width, imgHeartLife.height);
   // paint
   imgBackground.onload = function() {
     requestAnimationFrame(drawAll);
@@ -59,7 +64,9 @@ window.onload = function() {
       if (codeset[65]) {
         myHero.attack();
       }
-      //requestAnimationFrame(drawAll);
+      if (codeset[38]) {
+        upPressed = true;
+      }
     }
   }).on('keyup', function(e) {
     if (e.keyCode in codeset) {
@@ -68,10 +75,10 @@ window.onload = function() {
       myHero.speedMax = myHero.speedNormal;
     }
     if (myHero.y == 420) myHero.idle();
+    upPressed = false;
   });
   // Loop draw and lastTime = now
   var lastTime = 0;
-
   function drawAll(timestamp) {
     var duration = 1000 / 24;
     // return if the desired time hasn't elapsed
@@ -82,9 +89,17 @@ window.onload = function() {
     ctx.clearRect(stage.x, stage.y, stage.height, stage.width);
     stage.drawStage(ctx, stage.img, stage.x, stage.y);
     myHero.drawHero(ctx, myHero.img);
+    if (myHero.fairy == true){
+      // Fairy
+    }
+
     lifeBar.drawImageResized(ctx, imgBarLife, lifeBar.x, lifeBar.y, myHero.life / myHero.life * imgBarLife.width, imgBarLife.height);
     tiredBar.drawImageResized(ctx, imgTiredLife, tiredBar.x, tiredBar.y, myHero.tired / myHero.tiredMax * imgTiredLife.width, imgTiredLife.height);
     hud.drawStage(ctx, hud.img, hud.x, hud.y);
+    console.log("LIVES:"+myHero.lives);
+    if (myHero.lives == 1){
+      heartHUD.drawStage(ctx, imgHeartLife, heartHUD.x,heartHUD.y);
+    }
     instructions.drawStage(ctx, instructions.img, 50, 522);
     myHero.animation();
     myHero.recoverTired();
@@ -97,7 +112,11 @@ window.onload = function() {
         myHero.life = 0;
       }
     }
-    stage.interaction();
+    if(!upPressed){
+      stage.interaction(ctx,imgExclamationLetter,upPressed,myHero);
+    } else {
+      stage.interaction(ctx,imgFairyChat,upPressed,myHero);
+    }
     if (myHero.status == 'knightJumpLeft' || myHero.status == 'knightJumpLeft' && myHero.y == 420) {
       myHero.land();
     } else if (myHero.status == 'knightJumpLeftFinish') {
