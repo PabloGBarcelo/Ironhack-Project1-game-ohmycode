@@ -74,7 +74,7 @@ var knightAttackLeft = ['images/knightLeft/03-Attack_/2D_KNIGHT__Attack_000.png'
             'images/knightLeft/03-Attack_/2D_KNIGHT__Attack_007.png'];
 
 var knightJumpLeft = ['images/knightLeft/04-Jump_/2D_KNIGHT__Jump_Up_000.png'];
-var knightJumpFinishLeft = ['images/knightLeft/04-Jump_/2D_KNIGHT__Fall_Down_000.png'];
+var knightJumpLeftFinish = ['images/knightLeft/04-Jump_/2D_KNIGHT__Fall_Down_000.png'];
 
 var knightHurtLeft = ['images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_000.png',
             'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_001.png',
@@ -102,33 +102,56 @@ function Hero(img,x,y,width,height){
   Stage.call(this,img,x,y,width,height);
   this.status = knightIdleRight;
   this.direction = 'Right';
+  this.speedMax = 7; // SPEED MAX
+  this.maxSpeedAllowed = 10;
+  this.longJump = 9; // JUMP
+  this.speedNormal = 7; // SPEED NORMAL
+  this.life = 100; // ACTUAL LIFE
+  this.lifeMax = 100; // 100% LIFE
+  this.lives = 1; // NUMBER OF LIVES
+  this.tired = 10; // ACTUAL TIRED
+  this.tiredMax = 10; // MAX TIRED
 }
 
 Hero.prototype.drawHero = function(ctx,img){
   ctx.drawImage(img,this.x,this.y,this.width,this.height);
 };
 
-Hero.prototype.moveToLeft = function(stage){
-  if (this.status != knightRunLeft) this.status = knightRunLeft;
-  if (this.direction != 'Left')   this.direction = 'Left';
-  if (this.x >= 0 && this.x <=410 && stage.x == 0 ||
-      this.x >= 400 && this.x <=750 && stage.x <= -800 && stage.x >= -1600
-      && this.x >= 400 && this.x <780){
-    this.x -= 5;
-  } else if (this.x > 30){
-    stage.x +=5;
+Hero.prototype.checkAndMoveScreen = function(stage,hero,speed){
+  hero = this;
+  if (hero.direction == 'Left' || this.status == 'knightJumpLeft'){
+    if (hero.x >= 0 && hero.x <=410 && stage.x == 0 ||
+        hero.x >= 400 && hero.x <=750 && stage.x <= -800 && stage.x >= -1600
+        && this.x >= 400 && hero.x <780){
+      hero.x -= speed;
+    } else if (hero.x > 30){
+      stage.x +=speed;
+      }
+    } else if (hero.direction == 'Right' || this.status == 'knightJumpRight'){
+
+      if (hero.x >=400 && stage.x > -1600){ // (1600+800 width) 2400 max size
+        stage.x -= speed;
+      }else if(hero.x < stage.width && hero.x < 730){
+          hero.x += speed;
+      }
     }
+};
+
+Hero.prototype.moveToLeft = function(stage){
+  if (this.y == 420){
+    if (this.status != knightRunLeft) this.status = knightRunLeft;
+    if (this.direction != 'Left')   this.direction = 'Left';
+    this.checkAndMoveScreen(stage,this,this.speedMax);
+    };
   };
 
 Hero.prototype.moveToRight = function(stage){
-  if (this.status != knightRunRight) this.status = knightRunRight;
-  if (this.direction != 'Right') this.direction = 'Right';
-  if (this.x >=400 && stage.x > -1600){ // (1600+800 width) 2400 max size
-    stage.x -= 5;
-  }else if(this.x < stage.width && this.x < 730){
-      this.x += 10;
-  }
-  console.log('this.x '+this.x+' stage.x '+stage.x+'stage.width: '+stage.width);
+  if (this.y == 420){
+    if (this.status != knightRunRight) this.status = knightRunRight;
+    if (this.direction != 'Right') this.direction = 'Right';
+    this.checkAndMoveScreen(stage,this,this.speedMax);
+  };
+  //console.log('this.x '+this.x+' stage.x '+stage.x+'stage.width: '+stage.width);
 };
 
 Hero.prototype.idle = function(){
@@ -148,20 +171,69 @@ Hero.prototype.attack = function(stage){
   console.log('attacking!!!');
 };
 
-Hero.prototype.jump = function(){
-  if (this.direction == 'Left'){
-    if (this.status != knightJumpLeft) this.status = knightJumpLeft;
-  } else if (this.direction == 'Right'){
-    if (this.status != knightJumpRight) this.status = knightJumpRight;
+Hero.prototype.jump = function(speedJump,stage){
+  // Use speedJump to check if is stopped or not
+  var that = this;
+  if (that.y == 420 && that.tired > 0){
+    var x = this.longJump;
+    if (speedJump !=0)
+      var y = speedJump-2;
+    else {
+      var y = 0;
+    } // handicap
+    var that = this;
+    if (this.direction == 'Left'){
+      if (this.status != knightJumpLeft) this.status = knightJumpLeft;
+    } else if (this.direction == 'Right'){
+      if (this.status != knightJumpRight) this.status = knightJumpRight;
+    }
+    console.log ("stage in a "+stage);
+      var requestId = setInterval(function (){
+        if (y != 0)
+          that.checkAndMoveScreen(stage,that,y);
+        that.y -= x;
+        x--;
+        if (x == -1){
+          that.land(y,stage);
+          sw = 0;
+          clearInterval(requestId);
+        }
+      },50);
+     }
+  };
+
+Hero.prototype.run = function(){
+  if (this.speedMax < this.maxSpeedAllowed && this.tired > 0)
+    this.speedMax += 3;
+  else if (this.tired > 0){
+    console.log("Max. Speed taken");
+    this.tired -= 0.10;
+  } else{
+    this.speedMax = this.speedNormal;
+    console.log("IM TIRED!!!!!");
   }
 };
-
-Hero.prototype.land = function(){
+Hero.prototype.land = function(y,stage){
   if (this.direction == 'Left'){
     if (this.status != knightJumpLeftFinish) this.status = knightJumpLeftFinish;
   } else if (this.direction == 'Right'){
     if (this.status != knightJumpRightFinish) this.status = knightJumpRightFinish;
   }
+  var x = 0;
+  var that = this;
+  RequestAnimationFrame();
+    var requestId = setInterval(function (){
+      console.log(stage);
+      that.checkAndMoveScreen(stage,that,y);
+      that.y += x;
+      x++;
+      if (x == that.longJump+1){
+        clearInterval(requestId);
+      }
+
+    },50);
+    this.tired -= 3;
+    this.idle();
 };
 // Animate our hero
 var x = 0;
@@ -171,15 +243,6 @@ Hero.prototype.animation = function(){
     x++;
 };
 
-// Move with Hero
-// var x = 0;
-// var ab = setInterval(function(e){
-// console.log(x);
-// ctx.clearRect(0,0,800,600)
-// ctx.drawImage(img,x,0);
-// x -= 2.5;
-// if (x <= -1600){
-//   clearInterval(ab);
-// }
-// },25)
-// };
+Hero.prototype.recoverTired = function(){
+
+};
