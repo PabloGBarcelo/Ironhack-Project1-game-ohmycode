@@ -84,7 +84,6 @@ var knightDieLeft = ['images/knightLeft/05-Die_/2D_KNIGHT__Die_000.png',
             'images/knightLeft/05-Die_2D_KNIGHT__Die_005.png',
             'images/knightLeft/05-Die_/2D_KNIGHT__Die_006.png',
             'images/knightLeft/05-Die_/2D_KNIGHT__Die_007.png'];
-
 var requestId;
 Hero.prototype = Object.create(Game.prototype);
 Hero.prototype.constructor = Hero;
@@ -104,11 +103,9 @@ function Hero(img,x,y,width,height){
   this.tiredMax = 10; // MAX TIRED
   this.recoveringTime = 0.025;
   this.fairy = false; // Fairy company
+  this.mp = 100;
+  this.isAttacking = false;
 }
-
-Hero.prototype.drawHero = function(ctx,img){
-  ctx.drawImage(img,this.x,this.y,this.width,this.height);
-};
 
 Hero.prototype.checkAndMoveScreen = function(stage,hero,speed){
   hero = this;
@@ -130,6 +127,9 @@ Hero.prototype.checkAndMoveScreen = function(stage,hero,speed){
     }
 };
 
+Hero.prototype.setFairyPosition = function(){
+
+};
 Hero.prototype.moveToLeft = function(stage){
   if (this.y == 420){
     if (this.status != knightRunLeft) this.status = knightRunLeft;
@@ -232,12 +232,8 @@ Hero.prototype.land = function(y,stage){
 };
 // Animate our hero
 var x = 0;
-Hero.prototype.animation = function(time){
-    if (x >= this.status.length) x = 0;
-    this.img.src = this.status[x];
-    x++;
-};
 
+// Recovery *2 when stop
 Hero.prototype.recoverTired = function(){
   if((this.speedMax == this.speedNormal
     && (this.status == knightRunLeft || this.status == knightRunRight))
@@ -247,13 +243,14 @@ Hero.prototype.recoverTired = function(){
     && (this.status == knightIdleLeft || this.status == knightIdleRight))
   && this.tired < this.tiredMax){
     this.tired += this.recoveringTime*2;
-
   }
 };
 
 Hero.prototype.isAlive = function(stage){
-  if (this.life <= 0){
-    console.log('HA MUERTO');
+  if (this.life <= 0 && this.lives >0){
     this.lives -= 1;
+    stage.diedWithLives(this);
+  } else{
+    // .. do something ..
   }
 };
