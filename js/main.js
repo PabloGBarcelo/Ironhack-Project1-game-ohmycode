@@ -8,6 +8,7 @@ window.onload = function() {
   var imgBackground = stage.createImage('images/background1line.png', 2400, 1800);
   stage.img = imgBackground;
   // Start images objects
+  var monstersChibiEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',50,30);
   var imgHero = stage.createImage('images/knight/01-Idle_/2D_KNIGHT__Idle_000.png', 61, 69);
   var imgMonsterEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',109,66);
   var imgInstructions = stage.createImage('images/Instructions.png', 18, 99);
@@ -20,11 +21,12 @@ window.onload = function() {
   var imgHeartLife = stage.createImage('images/heart.png',14,14);
   var imgFairy = stage.createImage('images/fairyLeft/frame0.png',50,55);
   // Start player
-  var myHero = new Hero(imgHero, 20, 420, 61, 69);
+  var myHero = new Hero(imgHero, 20, stage.floor-69, 61, 69);
   // Start Fairy
   var myFairy = new Fairy(imgFairy, 0,0,50,55); // x and y not defined
   // Start monster_easy
   var monster_easy = [];
+  var monsterChibiEasy = [];
   // img,x,y,width,height,strength,life, xRelative
   monster_easy.push(new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,10,10,0));
   // Place instructions
@@ -57,10 +59,10 @@ window.onload = function() {
     if (e.keyCode in codeset) {
       codeset[e.keyCode] = true;
       if (codeset[39] && codeset[32]) { // RIGHT JUMP
-        myHero.jump(myHero.speedMax, stage); //Handicap
+        myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[37] && codeset[32]) { // LEFT JUMP
-        myHero.jump(myHero.speedMax, stage); //Handicap
+        myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[39]) {
         myHero.moveToRight(stage);
@@ -69,7 +71,7 @@ window.onload = function() {
         myHero.moveToLeft(stage);
       }
       if (codeset[32]) {
-        myHero.jump(0, stage);
+        myHero.jump(0, stage, monster_easy);
       }
       if (codeset[16]) {
         myHero.run();
@@ -91,10 +93,10 @@ window.onload = function() {
   }).on('keyup', function(e) {
     if (e.keyCode in codeset) {
       codeset[e.keyCode] = false;
-      console.log("SpeedMax: " + myHero.speedMax + " speedNormal: " + myHero.speedNormal);
+      //console.log("SpeedMax: " + myHero.speedMax + " speedNormal: " + myHero.speedNormal);
       myHero.speedMax = myHero.speedNormal;
     }
-    if (myHero.y == 420) myHero.idle();
+    if (myHero.y == stage.floor - myHero.height) myHero.idle();
     upPressed = false;
     myHero.isAttacking = false;
   });
@@ -114,11 +116,10 @@ window.onload = function() {
     stage.draw(stage);
     drawHero();
     drawHUD();
-
+    monster_easy[0].enemyEasyDie();
+    stage.jumpOverObject(monster_easy[0],myHero);
     stage.drawResized(monster_easy[0]);
-    if(stage.checkAndMoveEnemyInScreen(monster_easy[0],myHero)){
-      // Do something if colision
-    };
+    stage.checkAndMoveEnemyInScreen(monster_easy[0],myHero);
     if (myHero.fairy == true){
       instructions.img.src='images/instructions2.png';
     }
@@ -168,7 +169,7 @@ window.onload = function() {
     myHero.recoverTired();
   }
 
-  function gravity(){
+  function gravity(){ // gravity when exit from frame
     if (stage.gravity(myHero)) {
       console.log('gravedad activada');
       if (myHero.y < 800) {

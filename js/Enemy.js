@@ -48,8 +48,6 @@ function Enemy(img,x,y,width,height,strength,life, xRelative){
 
 Enemy.prototype.attack = function(){
   // Move to the right
-  this.x += 5;
-  this.retroattack();
 };
 
 Enemy.prototype.retroAttack = function(){
@@ -74,5 +72,32 @@ Enemy.prototype.aiAttack = function(){
   // Move to the enemy or random
 
 };
+var cont = 0;
+Enemy.prototype.enemyEasyDie = function(){
+  if (this.life <= 0 && this.status != enemyEasyStompedLeft){
+    console.log("ESTOY ALLI");
+    this.status = enemyEasyStompedLeft;
+  }
+  else if (this.life > 0 && this.status != enemyEasyIdleLeft){
+    console.log("ESTOY AQUI");
+    this.status = enemyEasyIdleLeft;
+  } else if (this.life <= 0){
+      if ((cont / 24) == 2){
+        this.life = 10;
+        console.log('CARGANDO VIDA!');
+        cont = 0;
+      }
+      cont++;
+  }
+  console.log(this.life);
+  console.log(cont);
+};
 
-Enemy.prototype.recalculate
+Enemy.prototype.createChibiMonsters = function(){
+  var chibiMonsters = [];
+  var monsterCoordinates;
+  for (var x = 0 ; x < monsterCoordinates.length ; x++){
+
+  };
+  chibiMonsters.push();
+};

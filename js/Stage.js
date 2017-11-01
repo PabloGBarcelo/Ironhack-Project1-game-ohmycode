@@ -3,6 +3,9 @@ Stage.prototype.constructor = Stage;
 function Stage(img,x,y,width,height,ctx){
   Game.call(this,img,x,y,height,width);
   this.ctx = ctx;
+  this.floor = 489;
+  this.floorInitialValue = 489; // set value floor (change during execution)
+  // Include floor - height of hero
 }
 
 Stage.prototype.createImage = function(path,width,height){
@@ -22,11 +25,43 @@ Stage.prototype.drawResized = function (object){
   this.ctx.drawImage(object.img,object.x,object.y,object.width,object.height);
 };
 
-Stage.prototype.checkAndMoveEnemyInScreen = function (enemy,hero){
+Stage.prototype.jumpOverObject = function (object,hero){
+  // console.log(hero);
+  // console.log(object);
+  if (hero.y + hero.height < object.y // hero in top of object
+      && hero.x + hero.width >= object.x
+      && hero.x < object.x ){
+        this.floor = object.y;
+        // console.log('setting stage floor to '+(object.y));
+
+  } else if(hero.y + hero.height == object.y // hero in top of object
+      && hero.x + hero.width >= object.x
+      && hero.x <= object.x + object.width){
+      // console.log("SALTA");
+      hero.jump(hero.speedMax, this, object);
+      object.life -= 10;
+      // console.log(object);
+  } else if (((hero.x + hero.width < object.x
+    || hero.x > object.x + object.width))){
+    // console.log("Entrando");
+    this.floor = this.floorInitialValue; // Initial stage floor
+  }
+  // this.ctx.fillRect(hero.x,hero.y,61,69);
+  // this.ctx.fillRect(object.x,object.y,109,66);
+  // console.log(object.y,hero.y+hero.height);
+  // console.log("----- START -----");
+  // console.log(hero.y + hero.height == object.y);
+  // console.log(hero.x >= object.x  && hero.x <= object.x);
+  // console.log("----- FINISH -----");
+};
+
+Stage.prototype.checkAndMoveEnemyInScreen = function (object,hero){
+  // object can be enemy or
   // DETECT COLLISION ALGORITHM POSITION RELATIVE
   // this.x + stage.x (negative) + this.width (positive)
   // console.log("this.areaEnemyStart"+enemy.areaEnemyStart+" stage.x "+this.x);
-  enemy.x = enemy.areaEnemyStart + this.x;
+  object.x = object.areaEnemyStart + this.x;
+  // Check if something under;
   //   if(enemy.x < hero.x + this.x + hero.width - 18 + this.x &&
   //     enemy.x + enemy.width + this.x > hero.x + this.x &&
   //     enemy.y < hero.y + hero.height &&
@@ -46,7 +81,6 @@ Stage.prototype.checkAndMoveEnemyInScreen = function (enemy,hero){
   //       hero.y = enemy.y+hero.height;
   //       return 1;
   //     };
-  return 1 ;
   };
   // Little Fix -12 right, 18 left of PNG white
     // if (hero.y + hero.height >= enemy.y &&
