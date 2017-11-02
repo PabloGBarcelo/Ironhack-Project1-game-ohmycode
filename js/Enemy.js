@@ -1,66 +1,19 @@
-var enemyEasyIdleLeft = ['images/monster_easy/IdleLeft/frame-1.png',
-                         'images/monster_easy/IdleLeft/frame-2.png',
-                         'images/monster_easy/IdleLeft/frame-3.png',
-                         'images/monster_easy/IdleLeft/frame-4.png',
-                         'images/monster_easy/IdleLeft/frame-5.png',
-                         'images/monster_easy/IdleLeft/frame-6.png',
-                         'images/monster_easy/IdleLeft/frame-7.png',
-                         'images/monster_easy/IdleLeft/frame-8.png',
-                         'images/monster_easy/IdleLeft/frame-9.png',
-                         'images/monster_easy/IdleLeft/frame-10.png'];
-var enemyEasyStompedLeft = ['images/monster_easy/stompedLeft/frame-1.png',
-                         'images/monster_easy/stompedLeft/frame-2.png',
-                         'images/monster_easy/stompedLeft/frame-3.png',
-                         'images/monster_easy/stompedLeft/frame-4.png',
-                         'images/monster_easy/stompedLeft/frame-5.png',
-                         'images/monster_easy/stompedLeft/frame-6.png'];
-var enemyEasyIdleRight = ['images/monster_easy/IdleRight/frame-1.png',
-                         'images/monster_easy/IdleRight/frame-2.png',
-                         'images/monster_easy/IdleRight/frame-3.png',
-                         'images/monster_easy/IdleRight/frame-4.png',
-                         'images/monster_easy/IdleRight/frame-5.png',
-                         'images/monster_easy/IdleRight/frame-6.png',
-                         'images/monster_easy/IdleRight/frame-7.png',
-                         'images/monster_easy/IdleRight/frame-8.png',
-                         'images/monster_easy/IdleRight/frame-9.png',
-                         'images/monster_easy/IdleRight/frame-10.png'];
-var enemyEasyStompedRight = ['images/monster_easy/stompedRight/frame-1.png',
-                             'images/monster_easy/stompedRight/frame-2.png',
-                             'images/monster_easy/stompedRight/frame-3.png',
-                             'images/monster_easy/stompedRight/frame-4.png',
-                             'images/monster_easy/stompedRight/frame-5.png',
-                             'images/monster_easy/stompedRight/frame-6.png'];
-var monsterGreenIdle = ['images/monsterGreen/frame-1.png',
-                        'images/monsterGreen/frame-2.png',
-                        'images/monsterGreen/frame-3.png',
-                        'images/monsterGreen/frame-4.png',
-                        'images/monsterGreen/frame-5.png'];
-var monsterGreenHitted = ['images/monsterGreen/hit1.png',
-                          'images/monsterGreen/hit2.png',
-                          'images/monsterGreen/hit3.png',
-                          'images/monsterGreen/hit4.png',
-                          'images/monsterGreen/hit5.png'];
-var monsterBlackIdle = ['images/monsterBlack/frame1.png',
-                        'images/monsterBlack/frame2.png'];
-
-Enemy.prototype = Object.create(Game.prototype);
-Enemy.prototype.constructor = Enemy;
-
+var allRip = [];
 function Enemy(img,x,y,width,height,strength,life, xRelative,status){
   Game.call(this,img,x,y,height,width);
   this.xRelative = xRelative;
-  this.stregth = strength; //
+  this.strength = strength; //
   this.life = life;
   this.areaEnemyStart = x; // Wherer start the enemy
   this.xMin = 50; // Between this 2.
   this.xMax = 50; // Max place to the right
   this.status = status;
   this.type = 'enemy';
-  this.commands = [];
 }
+Enemy.prototype = Object.create(Game.prototype);
+Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.monsterMoveLeft = function(monster){
-  console.log('monstruo a la izquierda!!');
     if (monster.x - 15 > 400){
       monster.x -= 15;
       monster.areaEnemyStart += 15;
@@ -68,7 +21,6 @@ Enemy.prototype.monsterMoveLeft = function(monster){
 };
 
 Enemy.prototype.monsterMoveRight = function(monster){
-  console.log('monstruo a la derecha!!');
       monster.x +=15;
       monster.areaEnemyStart -= 15;
 };
@@ -103,7 +55,7 @@ Enemy.prototype.monsterAttack = function(monster, hero){
     console.log('monster.x'+monster.x);
 };
 var cont = 0;
-Enemy.prototype.enemyEasyDie = function(){
+Enemy.prototype.enemyEasyDie = function(){ // jumper
   if (this.life <= 0 && this.status != enemyEasyStompedLeft){
     this.status = enemyEasyStompedLeft;
   }
@@ -118,11 +70,27 @@ Enemy.prototype.enemyEasyDie = function(){
   }
 };
 
-Enemy.prototype.createMonsters = function(){
-  var chibiMonsters = [];
-  var monsterCoordinates;
-  for (var x = 0 ; x < monsterCoordinates.length ; x++){
+Enemy.prototype.monsterDieOrDraw = function(stage){
+  if (this.isMonsterDied(this)){
+    console.log("MURIO!");
+    this.createRIP(stage);
+    return 1;
+  } else {
+    stage.drawResized(this);
+    return 0;
+  }
+};
 
-  };
-  chibiMonsters.push();
+Enemy.prototype.isMonsterDied = function(monster){
+  if (monster.life <= 0){
+    return 1;
+  }
+  else{
+    return 0;
+  }
+};
+Enemy.prototype.createRIP = function(stage){
+
+  allRip.push(new Stage (stage.createImage('images/rip.png',33,32),this.x+this.width-33,this.y+this.height-32));
+
 };

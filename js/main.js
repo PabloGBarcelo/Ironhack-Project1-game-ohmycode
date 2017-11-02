@@ -1,18 +1,20 @@
 window.onload = function() {
-
   allImagesToPreload.forEach(function(a){
     $.each(a, function(i,source) {
-      jQuery.get(source); });
+      $.get(source); });
   });
 
   var upPressed = false; // Detect if key up is pressed;
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
+  startGame();
+  function startGame(){
   // Start Stage (Background)
   var stage = new Stage(imgBackground, 0, 0, 2400, 1800, ctx);
   var imgBackground = stage.createImage('images/background1line.png', 2400, 1800);
   stage.img = imgBackground;
   // Start images objects
+
   var monstersChibiEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',50,30);
   var imgHero = stage.createImage('images/knight/01-Idle_/2D_KNIGHT__Idle_000.png', 61, 69);
   var imgMonsterEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',109,66);
@@ -32,30 +34,36 @@ window.onload = function() {
   var myHero = new Hero(imgHero, 20, stage.floor-69, 61, 69);
   // Start Fairy
   var myFairy = new Fairy(imgFairy, 0,0,50,55); // x and y not defined
-  // Start monster_easy
-  var monster_easy = [];
-  monster_easy.push(new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,10,10,0,enemyEasyIdleLeft));
-  var monsterGreen = new Enemy(imgGreenMonster,1039,440,imgGreenMonster.width,imgGreenMonster.height,20,20,-839,monsterGreenIdle);
-  var monsterBlack = new Enemy(monsterBlackIdle,500,440,imgBlackMonster.width,imgBlackMonster.height,40,40,-1163,imgBlackMonster);
-  var monsterBoss = new Enemy(imgBossMonster, 500, 440, imgBossMonster.width, imgBossMonster.height,60,60,-1513, imgBossMonster);
+  // Start monsters
+  var monster_easy = new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,0,99999999999,0,enemyEasyIdleLeft);
+  var monsterGreen = new Enemy(imgGreenMonster,1039,440,imgGreenMonster.width,imgGreenMonster.height,10,200,-839,monsterGreenIdle);
+  var monsterBlack = new Enemy(imgBlackMonster,1600,380,imgBlackMonster.width,imgBlackMonster.height,10,1000,-1163,monsterBlackIdle);
+  var monsterBoss = new Enemy(imgBossMonster, 2000, 270, imgBossMonster.width, imgBossMonster.height,10,2000,-1513, monsterBossIdle);
   // Place instructions
+
   var instructions = new Stage(imgInstructions, 50, 522, 267, 81);
-  //place HUD
+  // place HUD
   var hud = new Stage(imgHUD, 30, 30, 109, 239);
   // place BARS
   var lifeBar = new Stage(imgBarLife, 130, 40, imgBarLife.width, imgBarLife.height);
   var tiredBar = new Stage(imgTiredLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
   var mpBar = new Stage(imgMPLife, 130, 75, imgMPLife.width, imgMPLife.height);
   var heartHUD = new Stage(imgHeartLife, 42,39, imgHeartLife.width, imgHeartLife.height);
-  var allMonster = [monster_easy[0],monsterGreen,monsterBlack,monsterBoss];
+  // monster_easy is not a monster (not hit and rest life)
+  var allMonster = [monster_easy,monsterGreen,monsterBlack,monsterBoss];
   // get all place of enemies and colision
+  // Every 1500 seconds monster make something
   setInterval(function(){
-    monsterGreen.aiMonster(myHero);
-  },1500);
+    allMonster.forEach(function(monster){
+      if (monster != allMonster[0]){
+          monster.aiMonster(myHero);
+      }
+    }.bind(this));
+  }.bind(this),1500);
   // paint
-  imgBackground.onload = function() {
-    requestAnimationFrame(drawAll);
-  };
+  requestAnimationFrame(drawAll);
+
+  // KEYBOARD INPUT
   var codeset = {
     16: false,
     32: false,
@@ -77,7 +85,6 @@ window.onload = function() {
         myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[39]) {
-        console.log(stage.x);
         myHero.moveToRight(stage);
       }
       if (codeset[37]) {
@@ -99,6 +106,7 @@ window.onload = function() {
       if (codeset[83]) {
         if (myHero.fairy == true){
           console.log("MAGIC!");
+          myHero.useMagic();
         }
 
       }
@@ -128,26 +136,25 @@ window.onload = function() {
     stage.draw(stage);
     drawHero();
     drawHUD();
-    monster_easy[0].enemyEasyDie();
-    stage.jumpOverObject(monster_easy[0],myHero);
-    stage.drawResized(monster_easy[0]);
-    stage.drawResized(monsterGreen);
-    stage.checkAndMoveEnemyInScreen(monster_easy[0],myHero);
-    stage.checkAndMoveEnemyInScreen(monsterGreen,myHero);
-    if (myHero.fairy == true){
-      instructions.img.src='images/instructions2.png';
-    }
-    stage.draw(instructions); //50 522
-    stage.animation(myHero);
-    stage.animation(monster_easy[0]); // BAD FIX
-    if (halfTime == 1){
-      stage.animation(monster_easy[0]);
-      stage.animation(myFairy);
-      halfTime = 0;
-    } else {
-      halfTime++;
-    }
-    stage.animation(monsterGreen);
+    drawTomb();
+    // Jumper
+    stage.jumpOverObject(monster_easy ,myHero);
+    myHero.recoverTired();
+    monster_easy.enemyEasyDie();
+    var cont = 0;
+    allMonster.forEach(function(monster){
+      if (monster != monster_easy){
+        monster.monsterDieOrDraw(stage);
+      } else {
+       stage.drawResized(monster);
+      }
+       stage.animation(monster);
+      stage.checkAndMoveEnemyInScreen(monster,myHero);
+      cont++;
+    });
+    allMonster = removeDeadMonsters(allMonster);
+    console.log(allMonster);
+    stage.collisionHeroAndEnemys(myHero,allMonster);
     myHero.isAlive(stage);
     gravity();
     if(!upPressed){
@@ -165,10 +172,14 @@ window.onload = function() {
   }
 
   function drawHero(){
+
+    stage.animation(myHero);
     stage.drawResized(myHero);
     if (myHero.fairy == true){
       myFairy.setFairyPosition(myHero);
+      stage.animation(myFairy);
       stage.draw(myFairy);
+      instructions.img.src='images/instructions2.png';
     }
   }
 
@@ -182,7 +193,7 @@ window.onload = function() {
     if (myHero.lives == 1){
       stage.draw(heartHUD);
     }
-    myHero.recoverTired();
+    stage.draw(instructions); //50 522
   }
 
   function gravity(){ // gravity when exit from frame
@@ -194,5 +205,19 @@ window.onload = function() {
         myHero.life = 0;
       }
     }
+  }
+  function drawTomb(){
+    if (allRip.length>0){
+      allRip.forEach(function(tomb){
+        stage.drawResized(tomb);
+      });
+    }
+  }
+  function removeDeadMonsters(allMonsters){
+    var liveMonsters = allMonsters.filter(function( obj ) {
+      return obj.life > 0;
+    });
+    return liveMonsters;
+  };
   }
 };

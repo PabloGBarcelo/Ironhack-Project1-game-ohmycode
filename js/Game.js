@@ -5,3 +5,7 @@ function Game(img,x,y,height,width){
   this.width = width;
   this.img = img;
 }
+
+Game.prototype.stage1 = function(){
+
+};
