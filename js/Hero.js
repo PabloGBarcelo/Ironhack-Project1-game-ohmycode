@@ -34,18 +34,18 @@ var knightHurtRight = ['images/knight/05-Hurt_/2D_KNIGHT__Hurt_000.png',
   'images/knight/05-Hurt_/2D_KNIGHT__Hurt_002.png',
   'images/knight/05-Hurt_/2D_KNIGHT__Hurt_003.png',
   'images/knight/05-Hurt_/2D_KNIGHT__Hurt_004.png',
-  'images/knight/05-Hurt_2D_KNIGHT__Hurt_005.png',
+  'images/knight/05-Hurt_/2D_KNIGHT__Hurt_005.png',
   'images/knight/05-Hurt_/2D_KNIGHT__Hurt_006.png',
   'images/knight/05-Hurt_/2D_KNIGHT__Hurt_007.png'
 ];
-var knightDieRight = ['images/knight/05-Die_/2D_KNIGHT__Die_000.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_001.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_002.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_003.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_004.png',
-  'images/knight/05-Die_2D_KNIGHT__Die_005.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_006.png',
-  'images/knight/05-Die_/2D_KNIGHT__Die_007.png'
+var knightDieRight = ['images/knight/06-Die_/2D_KNIGHT__Die_000.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_001.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_002.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_003.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_004.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_005.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_006.png',
+  'images/knight/06-Die_/2D_KNIGHT__Die_007.png'
 ];
 var knightIdleLeft = ['images/knightLeft/01-Idle_/2D_KNIGHT__Idle_000.png',
   'images/knightLeft/01-Idle_/2D_KNIGHT__Idle_001.png',
@@ -81,18 +81,18 @@ var knightHurtLeft = ['images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_000.png',
   'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_002.png',
   'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_003.png',
   'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_004.png',
-  'images/knightLeft/05-Hurt_2D_KNIGHT__Hurt_005.png',
+  'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_005.png',
   'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_006.png',
   'images/knightLeft/05-Hurt_/2D_KNIGHT__Hurt_007.png'
 ];
-var knightDieLeft = ['images/knightLeft/05-Die_/2D_KNIGHT__Die_000.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_001.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_002.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_003.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_004.png',
-  'images/knightLeft/05-Die_2D_KNIGHT__Die_005.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_006.png',
-  'images/knightLeft/05-Die_/2D_KNIGHT__Die_007.png'
+var knightDieLeft = ['images/knightLeft/06-Die_/2D_KNIGHT__Die_000.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_001.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_002.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_003.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_004.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_005.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_006.png',
+  'images/knightLeft/06-Die_/2D_KNIGHT__Die_007.png'
 ];
 var requestId;
 Hero.prototype = Object.create(Game.prototype);
@@ -110,8 +110,8 @@ function Hero(img, x, y, width, height) {
   this.life = 100; // ACTUAL LIFE
   this.lifeMax = 100; // 100% LIFE
   this.lives = 1; // NUMBER OF LIVES (1/0)
-  this.tired = 10; // ACTUAL TIRED
-  this.tiredMax = 10; // MAX TIRED
+  this.tired = 20; // ACTUAL TIRED
+  this.tiredMax = 20; // MAX TIRED
   this.recoveringTime = 0.025;
   this.fairy = false; // Fairy company
   this.mp = 100;
@@ -141,9 +141,6 @@ Hero.prototype.checkAndMoveScreen = function(stage, hero, speed) {
   }
 };
 
-Hero.prototype.setFairyPosition = function() {
-
-};
 Hero.prototype.moveToLeft = function(stage) {
   if (this.y == stage.floor - this.height) {
     if (this.direction != 'Left') this.direction = 'Left';
@@ -194,7 +191,6 @@ Hero.prototype.jump = function(speedJump, stage, objectCollision) {
       var speed = speedJump - 2;
     else
       var speed = 0; // not move x
-
     var requestId = setInterval(function() {
       if (speed != 0) {
         that.checkAndMoveScreen(stage, that, speed);
@@ -252,9 +248,10 @@ Hero.prototype.recoverTired = function() {
 Hero.prototype.isAlive = function(stage) {
   if (this.life <= 0 && this.lives > 0) {
     this.lives -= 1;
+    this.idle();
     stage.diedWithLives(this);
   } else {
-    // .. do something ..
+    // .. do something .. END OF GAME
   }
 };
 

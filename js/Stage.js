@@ -46,13 +46,6 @@ Stage.prototype.jumpOverObject = function (object,hero){
     // console.log("Entrando");
     this.floor = this.floorInitialValue; // Initial stage floor
   }
-  // this.ctx.fillRect(hero.x,hero.y,61,69);
-  // this.ctx.fillRect(object.x,object.y,109,66);
-  // console.log(object.y,hero.y+hero.height);
-  // console.log("----- START -----");
-  // console.log(hero.y + hero.height == object.y);
-  // console.log(hero.x >= object.x  && hero.x <= object.x);
-  // console.log("----- FINISH -----");
 };
 
 Stage.prototype.checkAndMoveEnemyInScreen = function (object,hero){
@@ -100,7 +93,7 @@ Stage.prototype.animation = function(character){
 };
 Stage.prototype.gravity = function(hero,enemy){
     // DETECT GRAVITY IN BRIDGE
-    if(this.x > -315 && this.x < -161 && hero.y >= 420){
+    if(this.x > -315 && this.x < -49 && hero.y >= 420){
       return true;
     };
   };
@@ -129,5 +122,9 @@ Stage.prototype.interaction = function(ctx,img,upPressed,hero,hud){
     hero.tired = 10;
     hero.direction = 'Right';
     this.status = knightIdleRight;
+
+  };
+
+  Stage.prototype.collisionHeroAndEnemys = function(hero,enemys){
 
   };

@@ -1,5 +1,10 @@
 window.onload = function() {
-  // Start canvas
+
+  allImagesToPreload.forEach(function(a){
+    $.each(a, function(i,source) {
+      jQuery.get(source); });
+  });
+
   var upPressed = false; // Detect if key up is pressed;
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
@@ -11,6 +16,9 @@ window.onload = function() {
   var monstersChibiEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',50,30);
   var imgHero = stage.createImage('images/knight/01-Idle_/2D_KNIGHT__Idle_000.png', 61, 69);
   var imgMonsterEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',109,66);
+  var imgGreenMonster = stage.createImage('images/monsterGreen/frame-1.png',55,44);
+  var imgBlackMonster = stage.createImage('images/monsterBlack/frame1.png',127,103);
+  var imgBossMonster = stage.createImage('images/monsterBoss/frame1.png',222,205);
   var imgInstructions = stage.createImage('images/Instructions.png', 18, 99);
   var imgHUD = stage.createImage('images/hud.png', 109, 239);
   var imgBarLife = stage.createImage('images/barHP.png', 124, 13);
@@ -26,9 +34,10 @@ window.onload = function() {
   var myFairy = new Fairy(imgFairy, 0,0,50,55); // x and y not defined
   // Start monster_easy
   var monster_easy = [];
-  var monsterChibiEasy = [];
-  // img,x,y,width,height,strength,life, xRelative
-  monster_easy.push(new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,10,10,0));
+  monster_easy.push(new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,10,10,0,enemyEasyIdleLeft));
+  var monsterGreen = new Enemy(imgGreenMonster,1039,440,imgGreenMonster.width,imgGreenMonster.height,20,20,-839,monsterGreenIdle);
+  var monsterBlack = new Enemy(monsterBlackIdle,500,440,imgBlackMonster.width,imgBlackMonster.height,40,40,-1163,imgBlackMonster);
+  var monsterBoss = new Enemy(imgBossMonster, 500, 440, imgBossMonster.width, imgBossMonster.height,60,60,-1513, imgBossMonster);
   // Place instructions
   var instructions = new Stage(imgInstructions, 50, 522, 267, 81);
   //place HUD
@@ -38,8 +47,11 @@ window.onload = function() {
   var tiredBar = new Stage(imgTiredLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
   var mpBar = new Stage(imgMPLife, 130, 75, imgMPLife.width, imgMPLife.height);
   var heartHUD = new Stage(imgHeartLife, 42,39, imgHeartLife.width, imgHeartLife.height);
+  var allMonster = [monster_easy[0],monsterGreen,monsterBlack,monsterBoss];
   // get all place of enemies and colision
-
+  setInterval(function(){
+    monsterGreen.aiMonster(myHero);
+  },1500);
   // paint
   imgBackground.onload = function() {
     requestAnimationFrame(drawAll);
@@ -53,7 +65,7 @@ window.onload = function() {
     65: false,
     83: false
   };
-
+  // load action enemy
   //Tracking the Key down & Key up events
   $(document).on('keydown', function(e) {
     if (e.keyCode in codeset) {
@@ -65,6 +77,7 @@ window.onload = function() {
         myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[39]) {
+        console.log(stage.x);
         myHero.moveToRight(stage);
       }
       if (codeset[37]) {
@@ -105,7 +118,6 @@ window.onload = function() {
   var halfTime = 0;
   // DRAW ALL
   function drawAll(timestamp) {
-
     var duration = 1000 / 24;
     // return if the desired time hasn't elapsed
     if ((timestamp - lastTime) < duration) {
@@ -119,19 +131,23 @@ window.onload = function() {
     monster_easy[0].enemyEasyDie();
     stage.jumpOverObject(monster_easy[0],myHero);
     stage.drawResized(monster_easy[0]);
+    stage.drawResized(monsterGreen);
     stage.checkAndMoveEnemyInScreen(monster_easy[0],myHero);
+    stage.checkAndMoveEnemyInScreen(monsterGreen,myHero);
     if (myHero.fairy == true){
       instructions.img.src='images/instructions2.png';
     }
     stage.draw(instructions); //50 522
     stage.animation(myHero);
-    if (halfTime == 2){
+    stage.animation(monster_easy[0]); // BAD FIX
+    if (halfTime == 1){
       stage.animation(monster_easy[0]);
       stage.animation(myFairy);
       halfTime = 0;
     } else {
       halfTime++;
     }
+    stage.animation(monsterGreen);
     myHero.isAlive(stage);
     gravity();
     if(!upPressed){
