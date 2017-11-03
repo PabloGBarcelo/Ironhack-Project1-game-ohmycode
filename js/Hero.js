@@ -1,7 +1,6 @@
 var fps = 24;
 // IMAGES
 var requestId;
-
 function Hero(img, x, y, width, height) {
   // Initial place of Hero
   Stage.call(this, img, x, y, width, height);
@@ -105,7 +104,6 @@ Hero.prototype.jump = function(speedJump, stage, objectCollision) {
       jumpUp--; // less speed
       // end of jump and start land
       if (jumpUp == -1) {
-        // console.log('start land');
         that.land(speed, stage, objectCollision);
         clearInterval(requestId);
       }
@@ -126,7 +124,7 @@ Hero.prototype.land = function(speed, stage, objectCollision) {
       that.y = stage.floor - that.height;
       clearInterval(requestId);
     }
-  }, 1000 / 24);
+  }, 1000 / 48);
   this.tired -= 1;
   this.idle();
 };
@@ -140,6 +138,7 @@ Hero.prototype.recoverTired = function() {
   } else if ((this.speedMax == this.speedNormal &&
       (this.status == knightIdleLeft || this.status == knightIdleRight)) &&
     this.tired < this.tiredMax) {
+
     this.tired += this.recoveringTime * 2;
   }
 };
@@ -149,8 +148,6 @@ Hero.prototype.isAlive = function(stage) {
     this.lives -= 1;
     this.idle();
     stage.diedWithLives(this);
-  } else {
-    // .. do something .. END OF GAME
   }
 };
 
@@ -162,6 +159,17 @@ Hero.prototype.comparePosition = function(stateLeft, stateRight) {
   }
 };
 
-Hero.prototype.useMagic = function(){
+Hero.prototype.useMagic = function(ctx, stage,enemy){
+  ctx.drawImage
   this.mp -= 20;
+};
+
+Hero.prototype.drawSlash = function(ctx,stage){
+  if (this.direction == 'Left'){
+    var imgSlash = stage.createImage('images/slashLeft.png',67,63);
+    ctx.drawImage(imgSlash, this.x-40, this.y);
+  } else if (this.direction == 'Right'){
+    var imgSlash = stage.createImage('images/slash.png',67,63);
+    ctx.drawImage(imgSlash, this.x+this.width-20, this.y);
+  }
 };

@@ -1,20 +1,43 @@
-window.onload = function() {
-  allImagesToPreload.forEach(function(a){
-    $.each(a, function(i,source) {
-      $.get(source); });
-  });
 
+window.onload = function() {
   var upPressed = false; // Detect if key up is pressed;
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  startGame();
-  function startGame(){
-  // Start Stage (Background)
-  var stage = new Stage(imgBackground, 0, 0, 2400, 1800, ctx);
+  var stage = new Stage(imgBackground, 0, -600, 2400, 1800, ctx);
   var imgBackground = stage.createImage('images/background1line.png', 2400, 1800);
+  var audio;
   stage.img = imgBackground;
-  // Start images objects
+  stage.img.onload = function(){
+  stage.draw(stage);
+  audio = new Audio('./music/PeaceSign.m4a');
+  audio.play();
+  select = new Audio('./music/sfx/select.wav');
+  };
+  var listener = function (event){
 
+  };
+  document.getElementById('game').addEventListener('click',function(evt){
+    if(evt.clientX > 277 && evt.clientX < 496 &&
+       evt.clientY > 96 && evt.clientY < 309){
+       audio.pause();
+       select.play();
+      startGame();
+    } else if (evt.clientX > 273 && evt.clientX < 303 &&
+              evt.clientY > 32 && evt.clientY < 63){
+                if (!audio.paused) audio.pause();
+                else audio.play();
+          }
+  },false);
+
+  function startGame(){
+
+  audio = new Audio('./music/Stage.mp3');
+  audio.play();
+  document.removeEventListener('click', listener, false);
+  // Start Stage (Background)
+  stage.y = 0;
+  stage.draw(stage);
+  // Start images objects
   var monstersChibiEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',50,30);
   var imgHero = stage.createImage('images/knight/01-Idle_/2D_KNIGHT__Idle_000.png', 61, 69);
   var imgMonsterEasy = stage.createImage('images/monster_easy/IdleLeft/frame-1.png',109,66);
@@ -26,19 +49,24 @@ window.onload = function() {
   var imgBarLife = stage.createImage('images/barHP.png', 124, 13);
   var imgTiredLife = stage.createImage('images/barTired.png', 124, 13);
   var imgMPLife = stage.createImage('images/barMP.png', 135, 13);
-  var imgExclamationLetter = stage.createImage('images/exclamation.png',39,38);
+  var imgEnemyLife = stage.createImage('images/lifeEnemyBar.png',123,13);
+  var hudEnemy = stage.createImage('images/lifeBarEnemy.png',161,35);
+  var imgExclamationLetter = stage.createImage('images/exclamation.png',60,38);
   var imgFairyChat = stage.createImage('images/chatboxFairy.png',423,162);
   var imgHeartLife = stage.createImage('images/heart.png',14,14);
   var imgFairy = stage.createImage('images/fairyLeft/frame0.png',50,55);
+  var imgEnemyLife = stage.createImage('images/lifeEnemyBar.png',123,13);
+  var hudEnemy = stage.createImage('images/lifeBarEnemy.png',161,35);
   // Start player
   var myHero = new Hero(imgHero, 20, stage.floor-69, 61, 69);
+
   // Start Fairy
   var myFairy = new Fairy(imgFairy, 0,0,50,55); // x and y not defined
   // Start monsters
   var monster_easy = new Enemy(imgMonsterEasy,380,420,imgMonsterEasy.width,imgMonsterEasy.height,0,99999999999,0,enemyEasyIdleLeft);
   var monsterGreen = new Enemy(imgGreenMonster,1039,440,imgGreenMonster.width,imgGreenMonster.height,10,200,-839,monsterGreenIdle);
-  var monsterBlack = new Enemy(imgBlackMonster,1600,380,imgBlackMonster.width,imgBlackMonster.height,10,1000,-1163,monsterBlackIdle);
-  var monsterBoss = new Enemy(imgBossMonster, 2000, 270, imgBossMonster.width, imgBossMonster.height,10,2000,-1513, monsterBossIdle);
+  var monsterBlack = new Enemy(imgBlackMonster,1500,380,imgBlackMonster.width,imgBlackMonster.height,20,1000,-1163,monsterBlackIdle);
+  var monsterBoss = new Enemy(imgBossMonster, 2000, 270, imgBossMonster.width, imgBossMonster.height,30,4000,-1513, monsterBossIdle);
   // Place instructions
 
   var instructions = new Stage(imgInstructions, 50, 522, 267, 81);
@@ -48,9 +76,13 @@ window.onload = function() {
   var lifeBar = new Stage(imgBarLife, 130, 40, imgBarLife.width, imgBarLife.height);
   var tiredBar = new Stage(imgTiredLife, 130, 110, imgTiredLife.width, imgTiredLife.height);
   var mpBar = new Stage(imgMPLife, 130, 75, imgMPLife.width, imgMPLife.height);
+  var enemyLifeBar = new Stage(imgEnemyLife, 0, 0, imgEnemyLife.width, imgEnemyLife.height);
   var heartHUD = new Stage(imgHeartLife, 42,39, imgHeartLife.width, imgHeartLife.height);
   // monster_easy is not a monster (not hit and rest life)
   var allMonster = [monster_easy,monsterGreen,monsterBlack,monsterBoss];
+  // Music // SFX
+  var sfxSword = new Audio ('./music/sfx/sword.wav');
+  var sfxJump = new Audio ('./music/sfx/jump.wav');
   // get all place of enemies and colision
   // Every 1500 seconds monster make something
   setInterval(function(){
@@ -62,7 +94,6 @@ window.onload = function() {
   }.bind(this),1500);
   // paint
   requestAnimationFrame(drawAll);
-
   // KEYBOARD INPUT
   var codeset = {
     16: false,
@@ -79,9 +110,11 @@ window.onload = function() {
     if (e.keyCode in codeset) {
       codeset[e.keyCode] = true;
       if (codeset[39] && codeset[32]) { // RIGHT JUMP
+        sfxJump.play();
         myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[37] && codeset[32]) { // LEFT JUMP
+        sfxJump.play();
         myHero.jump(myHero.speedMax, stage, monster_easy); //Handicap
       }
       if (codeset[39]) {
@@ -91,13 +124,17 @@ window.onload = function() {
         myHero.moveToLeft(stage);
       }
       if (codeset[32]) {
+        sfxJump.play();
         myHero.jump(0, stage, monster_easy);
       }
       if (codeset[16]) {
         myHero.run();
       }
       if (codeset[65]) {
+        sfxSword.play();
+        myHero.drawSlash(ctx,stage);
         myHero.attack();
+        myHero.drawSlash(ctx,stage);
         myHero.isAttacking = true;
       }
       if (codeset[38]) {
@@ -108,16 +145,14 @@ window.onload = function() {
           console.log("MAGIC!");
           myHero.useMagic();
         }
-
       }
     }
   }).on('keyup', function(e) {
     if (e.keyCode in codeset) {
       codeset[e.keyCode] = false;
-      //console.log("SpeedMax: " + myHero.speedMax + " speedNormal: " + myHero.speedNormal);
-      myHero.speedMax = myHero.speedNormal;
     }
     if (myHero.y == stage.floor - myHero.height) myHero.idle();
+    myHero.speedMax = myHero.speedNormal;
     upPressed = false;
     myHero.isAttacking = false;
   });
@@ -141,19 +176,26 @@ window.onload = function() {
     stage.jumpOverObject(monster_easy ,myHero);
     myHero.recoverTired();
     monster_easy.enemyEasyDie();
-    var cont = 0;
     allMonster.forEach(function(monster){
       if (monster != monster_easy){
         monster.monsterDieOrDraw(stage);
       } else {
-       stage.drawResized(monster);
+        if (monster.isInTheScreen(stage)){
+          stage.drawResized(monster);
+          monster.drawHUDEnemy(imgEnemyLife, hudEnemy, stage,ctx);
+        }
       }
-       stage.animation(monster);
+      if (monster.isInTheScreen(stage)) {
+        stage.drawResized(monster);
+        monster.drawHUDEnemy(imgEnemyLife, hudEnemy, stage,ctx);
+      }
       stage.checkAndMoveEnemyInScreen(monster,myHero);
-      cont++;
+      stage.animation(monster);
     });
+    if (stage.x < -1300){
+      monster_easy.loadMusicBoss(audio);
+    }
     allMonster = removeDeadMonsters(allMonster);
-    console.log(allMonster);
     stage.collisionHeroAndEnemys(myHero,allMonster);
     myHero.isAlive(stage);
     gravity();
@@ -167,8 +209,17 @@ window.onload = function() {
     } else if (myHero.status == 'knightJumpLeftFinish') {
       myHero.idle();
     }
+    if (myHero.lives >= 0 && allMonster.length > 1){
     lastTime = timestamp;
-    window.requestAnimationFrame(drawAll);
+      window.requestAnimationFrame(drawAll);
+    } else if (allMonster.length == 1){
+    console.log("YOU WIN");
+    youWin(stage);
+  }
+  if (myHero.lives == 0 && myHero.life <= 0) {
+    console.log(" YOU LOSE");
+    youLose(stage);
+  }
   }
 
   function drawHero(){
@@ -181,6 +232,7 @@ window.onload = function() {
       stage.draw(myFairy);
       instructions.img.src='images/instructions2.png';
     }
+      myHero.recoverTired();
   }
 
   function drawHUD(){
@@ -198,7 +250,6 @@ window.onload = function() {
 
   function gravity(){ // gravity when exit from frame
     if (stage.gravity(myHero)) {
-      console.log('gravedad activada');
       if (myHero.y < 800) {
         myHero.y += 10;
       } else{
@@ -209,7 +260,7 @@ window.onload = function() {
   function drawTomb(){
     if (allRip.length>0){
       allRip.forEach(function(tomb){
-        stage.drawResized(tomb);
+        stage.draw(tomb);
       });
     }
   }
@@ -219,5 +270,21 @@ window.onload = function() {
     });
     return liveMonsters;
   };
+  }
+
+  function youWin(stage){
+    audio.pause();
+    stage.x = 0;
+    stage.y = -1200;
+    codeset = {};
+    stage.draw(stage);
+  }
+
+  function youLose(stage){
+    audio.pause();
+    stage.x = -800;
+    stage.y = -1200;
+    codeset = {};
+    stage.draw(stage);
   }
 };

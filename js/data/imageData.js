@@ -56,7 +56,13 @@ var monsterGreenHitted = ['images/monsterGreen/hit1.png',
                           'images/monsterGreen/hit4.png',
                           'images/monsterGreen/hit5.png'];
 var monsterBlackIdle = ['images/monsterBlack/frame1.png',
-                        'images/monsterBlack/frame2.png'];
+                        'images/monsterBlack/frame2.png',
+                        'images/monsterBlack/frame3.png',
+                        'images/monsterBlack/frame4.png',
+                        'images/monsterBlack/frame5.png',
+                        'images/monsterBlack/frame6.png',
+                        'images/monsterBlack/frame7.png',
+                        'images/monsterBlack/frame8.png'];
 var monsterBossIdle = ['images/monsterBoss/frame1.png',
                   'images/monsterBoss/frame2.png',
                   'images/monsterBoss/frame3.png',
@@ -72,7 +78,6 @@ var monsterBossIdle = ['images/monsterBoss/frame1.png',
                   'images/monsterBoss/frame13.png',
                   'images/monsterBoss/frame14.png'];
 var rip = ['images/rip.png'];
-
 // KNIGHT
 var knightIdleRight = ['images/knight/01-Idle_/2D_KNIGHT__Idle_000.png',
   'images/knight/01-Idle_/2D_KNIGHT__Idle_001.png',
@@ -168,3 +173,19 @@ var knightDieLeft = ['images/knightLeft/06-Die_/2D_KNIGHT__Die_000.png',
   'images/knightLeft/06-Die_/2D_KNIGHT__Die_006.png',
   'images/knightLeft/06-Die_/2D_KNIGHT__Die_007.png'
 ];
+var allImagesToPreload = [fairyLeft,fairyRight,enemyEasyIdleLeft,enemyEasyStompedLeft,enemyEasyIdleRight,enemyEasyStompedRight,monsterGreenIdle,monsterGreenHitted,monsterBlackIdle,monsterBossIdle,rip,knightIdleRight,knightRunRight,knightAttackRight,knightJumpRight,knightJumpRightFinish,knightHurtRight,knightDieRight,knightIdleLeft,knightRunLeft,knightAttackLeft,knightJumpLeft,knightJumpLeftFinish,knightHurtLeft,knightDieLeft];
+// allImagesToPreload.forEach(function(a){
+//   $.each(a, function(i,source) {
+//     $.get(source); });
+// });
+var images = new Array();
+preload();
+function preload() {
+  allImagesToPreload.forEach(function(element){
+  for (i = 0; i < element.length; i++) {
+    images[i] = new Image();
+    images[i].src = element[i];
+
+  }
+});
+}

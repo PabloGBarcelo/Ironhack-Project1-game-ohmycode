@@ -1,9 +1,11 @@
+var died = new Audio('./music/sfx/die.wav');
+fairy = new Audio('./music/sfx/select.wav');
 
-function Stage(img, x, y, width, height, ctx) {
+function Stage(img, x, y, width, height, ctx, areaEnemyStart) {
   Game.call(this, img, x, y, height, width);
   this.ctx = ctx;
   this.floor = 489;
-  this.floorInitialValue = 489; // set value floor (change during execution)
+  this.floorInitialValue = 489;
   // Include floor - height of hero
 }
 
@@ -39,19 +41,19 @@ Stage.prototype.jumpOverObject = function(object, hero) {
     hero.x + hero.width >= object.x &&
     hero.x < object.x) {
 
-      this.floor = object.y;
+    this.floor = object.y;
 
   } else if (hero.y + hero.height == object.y &&
     hero.x + hero.width >= object.x &&
     hero.x <= object.x + object.width) {
 
-      hero.jump(hero.speedMax, this, object);
-      object.life -= 10;
+    hero.jump(hero.speedMax, this, object);
+    object.life -= 10;
 
   } else if (((hero.x + hero.width < object.x ||
       hero.x > object.x + object.width))) {
 
-        this.floor = this.floorInitialValue; // Initial stage floor
+    this.floor = this.floorInitialValue; // Initial stage floor
 
   }
 };
@@ -84,12 +86,14 @@ Stage.prototype.interaction = function(ctx, img, upPressed, hero, hud) {
       if (hero.fairy == false) {
         hero.fairy = true;
         hud.img.src = 'images/hud2.png';
+        fairy.play();
       }
     }
   }
 };
 
 Stage.prototype.diedWithLives = function(hero) {
+
   this.x = 0;
   this.y = 0;
   hero.x = 20;
@@ -98,7 +102,7 @@ Stage.prototype.diedWithLives = function(hero) {
   hero.tired = 10;
   hero.direction = 'Right';
   this.status = knightIdleRight;
-
+  died.play();
 };
 
 Stage.prototype.collisionHeroAndEnemys = function(hero, enemys) {
@@ -107,30 +111,35 @@ Stage.prototype.collisionHeroAndEnemys = function(hero, enemys) {
       oneEnemy.x + oneEnemy.width > hero.x &&
       oneEnemy.y < hero.y + hero.height &&
       oneEnemy.height + oneEnemy.y > hero.y) {
-        console.log("ENTRE");
       if (hero.isAttacking == false) {
         hero.life -= oneEnemy.strength;
-        console.log(hero.direction);
         if (hero.direction == 'Left') {
           hero.x += 10;
           this.x -= 10;
         } else if (hero.direction == 'Right') {
           hero.x -= 10;
-          if (this.x < -10){
+          if (this.x < -10) {
             this.x += 10;
           }
         }
-      } else {
-        if (oneEnemy != enemys[0]){ // Not for jumpers
-        if (hero.direction == 'Left') {
-          oneEnemy.areaEnemyStart -= 10;
-        } else if (hero.direction == 'Right') {
-          oneEnemy.areaEnemyStart += 10;
-        }}
+        // } else {
+        //   if (oneEnemy != enemys[0]){ // Not for jumpers
+        //   if (hero.direction == 'Left') {
+        //     oneEnemy.areaEnemyStart -= 10;
+        //   } else if (hero.direction == 'Right') {
+        //     oneEnemy.areaEnemyStart += 10;
+        //   }
+        // }
+      }
+    } else if (oneEnemy.x < hero.x + hero.width + 40 &&
+      oneEnemy.x + oneEnemy.width > hero.x - 40 &&
+      oneEnemy.y < hero.y + hero.height &&
+      oneEnemy.height + oneEnemy.y > hero.y
+      && hero.isAttacking == true){
+        console.log("ATACANDO A DISTANCIA");
         oneEnemy.life -= hero.attackSword;
         hero.isAttacking = false;
         console.log("Enemy life: " + oneEnemy.life);
       }
-    }
   }.bind(this));
 };

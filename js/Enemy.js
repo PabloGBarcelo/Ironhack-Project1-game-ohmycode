@@ -4,11 +4,13 @@ function Enemy(img,x,y,width,height,strength,life, xRelative,status){
   this.xRelative = xRelative;
   this.strength = strength; //
   this.life = life;
+  this.maxLife = life;
   this.areaEnemyStart = x; // Wherer start the enemy
   this.xMin = 50; // Between this 2.
   this.xMax = 50; // Max place to the right
   this.status = status;
   this.type = 'enemy';
+
 }
 Enemy.prototype = Object.create(Game.prototype);
 Enemy.prototype.constructor = Enemy;
@@ -33,7 +35,9 @@ Enemy.prototype.aiMonster = function(hero){
   var movements = [];
   if (hero.x - this.x > -100 && hero.x - this.x < 100){
     var c = function(){ that.monsterAttack(that,hero); };
-    movements = [a,b,c];
+    var d = function(){ that.monsterAttack(that,hero); };
+    var e = function(){ that.monsterAttack(that,hero); };
+    movements = [a,b,c,d,e];
   } else{
     movements = [a,b];
   }
@@ -43,7 +47,7 @@ Enemy.prototype.aiMonster = function(hero){
 
 Enemy.prototype.monsterAttack = function(monster, hero){
     console.log("Atacando AL HEROE");// Move to the enemy or random
-    if (hero.x - this.x > -100){
+    if (hero.x - this.x > -150){
       if (hero.x - this.x > 400){
         monster.x -=30;
         monster.areaEnemyStart -= 30;
@@ -52,7 +56,6 @@ Enemy.prototype.monsterAttack = function(monster, hero){
       monster.x +=30;
       monster.areaEnemyStart += 30;
     }
-    console.log('monster.x'+monster.x);
 };
 var cont = 0;
 Enemy.prototype.enemyEasyDie = function(){ // jumper
@@ -72,7 +75,6 @@ Enemy.prototype.enemyEasyDie = function(){ // jumper
 
 Enemy.prototype.monsterDieOrDraw = function(stage){
   if (this.isMonsterDied(this)){
-    console.log("MURIO!");
     this.createRIP(stage);
     return 1;
   } else {
@@ -90,7 +92,31 @@ Enemy.prototype.isMonsterDied = function(monster){
   }
 };
 Enemy.prototype.createRIP = function(stage){
+  allRip.push(new Stage (stage.createImage('images/rip.png',33,32),700-allRip.length*10,500));
+};
 
-  allRip.push(new Stage (stage.createImage('images/rip.png',33,32),this.x+this.width-33,this.y+this.height-32));
+Enemy.prototype.isInTheScreen = function(stage){
+  if(this.x >= 800 || this.x <= 0-+this.width){
+    return 0;
+  } else{
+    return 1;
+  }
+};
+var finalMusic = 0;
+Enemy.prototype.loadMusicBoss = function(audio){
+if (finalMusic == 0){
+  audio.pause();
+  audio = new Audio('./music/Boss.mp3');
+  audio.play();
+  finalMusic = 1;
+}
+};
 
+Enemy.prototype.drawHUDEnemy = function(bar,hud,stage,ctx){
+  // If its bad
+  if (this.life != this.maxLife){
+    ctx.drawImage(bar,this.x+14,this.y-40,  this.life / this.maxLife * bar.width, bar.height);
+    ctx.drawImage(hud,this.x-20,this.y-50);
+  //  ctx.drawImage(bar,this.x,this.y-50, this.life / myHero.maxLife * bar.width);
+  }
 };
