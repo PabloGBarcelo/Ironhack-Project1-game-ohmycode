@@ -18,6 +18,7 @@ function Hero(img, x, y, width, height) {
   this.recoveringTime = 0.025;
   this.fairy = false; // Fairy company
   this.mp = 100;
+  this.mpMax = 100;
   this.isAttacking = false;
   this.fixImageDown = 20;
   this.attackSword = 50;

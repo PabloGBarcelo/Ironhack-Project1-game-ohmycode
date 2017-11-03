@@ -1,3 +1,4 @@
+
 // FAIRY
 var fairyLeft = ['images/fairyLeft/frame0.png',
                  'images/fairyLeft/frame1.png',
