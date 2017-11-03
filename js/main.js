@@ -90,7 +90,7 @@ window.onload = function() {
           monster.aiMonster(myHero);
         }
       }.bind(this));
-    }.bind(this), 1500);
+    }.bind(this), 1000);
     // paint
     requestAnimationFrame(drawAll);
     // KEYBOARD INPUT
@@ -173,9 +173,9 @@ window.onload = function() {
       }
       ctx.clearRect(stage.x, stage.y, stage.height, stage.width);
       stage.draw(stage);
-      drawHero();
+      myHero.drawHero(stage,instructions,myFairy);
       drawHUD();
-      drawTomb();
+      stage.drawTomb(allRip);
       if (magicBalls.length > 0){
         moveMagic();
         drawMagic(magicBalls[0]);
@@ -209,7 +209,7 @@ window.onload = function() {
       allMonster = removeDeadMonsters(allMonster);
       stage.collisionHeroAndEnemys(myHero, allMonster);
       myHero.isAlive(stage);
-      gravity();
+      myHero.gravity(stage);
       if (!upPressed) {
         stage.interaction(ctx, imgExclamationLetter, upPressed, myHero, hud);
       } else {
@@ -221,30 +221,15 @@ window.onload = function() {
         myHero.idle();
       }
       if (myHero.lives >= 0 &&  allMonster.length > 1) {
+        console.log("SIGO AQUI");
         lastTime = timestamp;
         window.requestAnimationFrame(drawAll);
       } else if (allMonster.length == 1) {
-        console.log("YOU WIN");
-        youWin(stage);
+        stage.youWin(audio);
       }
       if (myHero.lives == 0 && myHero.life <= 0) {
-        console.log(" YOU LOSE");
-        youLose(stage);
+        stage.youLose(audio);
       }
-    }
-
-    function drawHero() {
-
-      stage.animation(myHero);
-      stage.drawResized(myHero);
-      if (myHero.fairy == true) {
-        myFairy.setFairyPosition(myHero);
-        stage.animation(myFairy);
-        stage.draw(myFairy);
-        instructions.img.src = 'images/instructions2.png';
-      }
-      myHero.recoverTired();
-
     }
 
     function drawHUD() {
@@ -262,46 +247,12 @@ window.onload = function() {
       stage.draw(instructions); //50 522
     }
 
-    function gravity() { // gravity when exit from frame
-      if (stage.gravity(myHero)) {
-        if (myHero.y < 800) {
-          myHero.y += 10;
-        } else {
-          myHero.life = 0;
-        }
-      }
-    }
-
-    function drawTomb() {
-      if (allRip.length > 0) {
-        allRip.forEach(function(tomb) {
-          stage.draw(tomb);
-        });
-      }
-    }
-
     function removeDeadMonsters(allMonsters) {
       var liveMonsters = allMonsters.filter(function(obj) {
         return obj.life > 0;
       });
       return liveMonsters;
     };
-  }
-
-  function youWin(stage) {
-    audio.pause();
-    stage.x = 0;
-    stage.y = -1200;
-    codeset = {};
-    stage.draw(stage);
-  }
-
-  function youLose(stage) {
-    audio.pause();
-    stage.x = -800;
-    stage.y = -1200;
-    codeset = {};
-    stage.draw(stage);
   }
 
   function moveMagic() {

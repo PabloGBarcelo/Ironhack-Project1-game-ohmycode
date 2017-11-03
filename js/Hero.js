@@ -161,7 +161,7 @@ Hero.prototype.comparePosition = function(stateLeft, stateRight) {
 };
 
 Hero.prototype.useMagic = function(ctx, stage,enemy){
-  ctx.drawImage
+  ctx.drawImage;
   this.mp -= 20;
 };
 
@@ -173,4 +173,27 @@ Hero.prototype.drawSlash = function(ctx,stage){
     var imgSlash = stage.createImage('images/slash.png',67,63);
     ctx.drawImage(imgSlash, this.x+this.width-20, this.y);
   }
+};
+
+Hero.prototype.gravity = function(stage) { // gravity when exit from frame
+  if (stage.gravity(this)) {
+    if (this.y < 800) {
+      this.y += 10;
+    } else {
+      this.life = 0;
+    }
+  }
+};
+Hero.prototype.drawHero = function(stage,instructions,myFairy) {
+
+  stage.animation(this);
+  stage.drawResized(this);
+  if (this.fairy == true) {
+    myFairy.setFairyPosition(this);
+    stage.animation(myFairy);
+    stage.draw(myFairy);
+    instructions.img.src = 'images/instructions2.png';
+  }
+  this.recoverTired();
+
 };

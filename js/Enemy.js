@@ -48,12 +48,12 @@ Enemy.prototype.aiMonster = function(hero){
 Enemy.prototype.monsterAttack = function(monster, hero){
     console.log("Atacando AL HEROE");// Move to the enemy or random
     if (hero.x - this.x > -150){
-      if (hero.x - this.x > 400){
-        monster.x -=30;
-        monster.areaEnemyStart -= 30;
-      }
+      // if (hero.x - this.x > 400){
+        monster.x -=40;
+        monster.areaEnemyStart -= 40;
+      // }
     } else{
-      monster.x +=30;
+      monster.x +=40;
       monster.areaEnemyStart += 30;
     }
 };
@@ -92,7 +92,7 @@ Enemy.prototype.isMonsterDied = function(monster){
   }
 };
 Enemy.prototype.createRIP = function(stage){
-  allRip.push(new Stage (stage.createImage('images/rip.png',33,32),700-allRip.length*10,500));
+  allRip.push(new Stage (stage.createImage('images/rip.png',33,32),700-allRip.length*10,30));
 };
 
 Enemy.prototype.isInTheScreen = function(stage){

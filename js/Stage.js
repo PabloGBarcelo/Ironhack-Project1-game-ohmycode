@@ -92,8 +92,15 @@ Stage.prototype.interaction = function(ctx, img, upPressed, hero, hud) {
   }
 };
 
-Stage.prototype.diedWithLives = function(hero) {
+Stage.prototype.drawTomb = function(allRip) {
+      if (allRip.length > 0) {
+        allRip.forEach(function(tomb) {
+          this.draw(tomb);
+        }.bind(this));
+      }
+    };
 
+Stage.prototype.diedWithLives = function(hero) {
   this.x = 0;
   this.y = 0;
   hero.x = 20;
@@ -102,9 +109,24 @@ Stage.prototype.diedWithLives = function(hero) {
   hero.tired = 10;
   hero.direction = 'Right';
   this.status = knightIdleRight;
+  hero.mp = 100;
   died.play();
 };
+Stage.prototype.youWin = function(audio) {
+  audio.pause();
+  this.x = 0;
+  this.y = -1200;
+  codeset = {};
+  this.draw(this);
+};
 
+Stage.prototype.youLose = function (audio) {
+  audio.pause();
+  this.x = -800;
+  this.y = -1200;
+  codeset = {};
+  this.draw(this);
+};
 Stage.prototype.collisionHeroAndEnemys = function(hero, enemys) {
   enemys.forEach(function(oneEnemy) {
     if (oneEnemy.x < hero.x + hero.width &&
