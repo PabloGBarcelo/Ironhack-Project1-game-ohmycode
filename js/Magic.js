@@ -3,7 +3,7 @@ function Magic(img,x,y,width,height,type,status){
   this.type = 'fire';
   this.status = './images/magicfire.png';
   this.speed = 15; //speed of balls
-  this.strength = 400;
+  this.strength = 300;
 }
 Magic.prototype = Object.create(Game.prototype);
 Magic.prototype.constructor = Magic;

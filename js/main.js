@@ -9,7 +9,7 @@ window.onload = function() {
   stage.img = imgBackground;
   stage.img.onload = function() {
     stage.draw(stage);
-    audio = new Audio('./music/PeaceSign.m4a');
+    audio = new Audio('./music/PeaceSign.mp3');
     audio.play();
     select = new Audio('./music/sfx/select.wav');
   };
